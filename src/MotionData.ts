@@ -71,6 +71,7 @@ export const MotionMajorityType = new t.Type(
 export const MotionOptions = t.exact(
   t.partial({
     majority: MotionMajorityType,
+    showChart: t.boolean,
   })
 )
 export type MotionOptions = t.TypeOf<typeof MotionOptions>

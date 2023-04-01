@@ -19,7 +19,7 @@ import {
   MotionOptions,
   MotionVote,
 } from "./MotionData"
-import { forwardMotion } from "./Util"
+import { buildPieChartWithResults, forwardMotion } from "./Util"
 import Votum from "./Votum"
 
 export enum LegacyMotionVoteType {
@@ -64,7 +64,7 @@ export default class Motion {
       MotionMetaOptions & { [K in keyof MotionOptions]: string }
     >(input.split(" "), {
       stopEarly: true,
-      boolean: ["unanimous"],
+      boolean: ["unanimous", "showChart"],
       alias: {
         u: "unanimous",
         m: "majority",
@@ -337,6 +337,11 @@ export default class Motion {
 
     let title = this.defineMotionMessageTitle(text);
 
+    let chartUrl = null;
+    if (!this.data.active && this.data.options?.showChart) {
+      chartUrl = buildPieChartWithResults(this.getVotes())
+    }
+
     const votes = text === true ? "" : "\n\n" + this.getVotesAsEmoji()
     const inactiveMotionColor = this.data.resolution === MotionResolution.Passed ? 0x2ecc71 : 0x636e72
 
@@ -360,6 +365,7 @@ export default class Motion {
             this.getReadableMajority()
           )}&txtclr=3498db&txtsize=20&h=50&txtfont=Georgia`,
         },
+        image: { url: chartUrl }
       },
     ]
 

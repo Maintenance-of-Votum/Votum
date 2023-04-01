@@ -166,3 +166,24 @@ export async function forwardMotion(
     await newMotion.postMessage(true)
   }
 }
+
+export function buildPieChartWithResults(
+  motionVotes: any,
+) : string {
+  const chartConfig = {
+    type: "pie",
+    data: {
+      labels: ["For", "Against", "Abstain"],
+      datasets: [{
+        label: "Votes",
+        data: [motionVotes.yes, motionVotes.no, motionVotes.abs],
+        backgroundColor: [
+          `#${ResponseType.Good.toString(16)}`,
+          `#${ResponseType.Bad.toString(16)}`,
+          `#${ResponseType.Neutral.toString(16)}`],
+      }],
+    }
+  }
+  const encodedChart = encodeURIComponent(JSON.stringify(chartConfig))
+  return `https://quickchart.io/chart?c=${encodedChart}`
+}
