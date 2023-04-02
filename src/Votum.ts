@@ -1,52 +1,54 @@
 import * as Discord from "discord.js"
-import * as Commando from "discord.js-commando"
-import * as path from "path"
-import Command from "./commands/Command"
+// import * as Commando from "discord.js-commando"
+// import * as path from "path"
+// import Command from "./commands/Command.text"
 import Council from "./Council"
+import CouncilCommand from "./commands/votum/CouncilCommand"
 
 require("dotenv").config()
 
 process.on("unhandledRejection", (reason, promise) => {
-  console.error("Unhandled Rejection at:", reason.stack || reason)
+  console.error("Unhandled Rejection at:", reason)
   // Recommended: send the information to sentry.io
   // or whatever crash reporting service you use
 })
 
 class Votum {
-  public bot: Commando.CommandoClient
+  public bot: Discord.Client
   private councilMap: Map<Discord.Snowflake, Council>
 
   constructor() {
-    this.bot = new Commando.CommandoClient({
-      owner: process.env.OWNER,
-      // disabledEvents: [
-      //   "TYPING_START",
-      //   "VOICE_STATE_UPDATE",
-      //   "PRESENCE_UPDATE",
-      //   "MESSAGE_DELETE",
-      //   "MESSAGE_UPDATE",
-      //   "CHANNEL_PINS_UPDATE",
-      //   "MESSAGE_REACTION_ADD",
-      //   "MESSAGE_REACTION_REMOVE",
-      //   "MESSAGE_REACTION_REMOVE_ALL",
-      //   "CHANNEL_PINS_UPDATE",
-      //   "MESSAGE_DELETE_BULK",
-      //   "WEBHOOKS_UPDATE",
-      // ] as any,
-      ws: {
-        intents: ["GUILD_MEMBERS", "GUILDS", "GUILD_MESSAGES"],
-      },
-      commandEditableDuration: 120,
+    this.bot = new Discord.Client({
+      intents: ["GuildMembers", "Guilds", "GuildMessages"],
     })
 
     this.councilMap = new Map()
-    this.registerCommands()
 
     this.bot.on("ready", () => {
       console.log("Votum is ready.")
 
       this.setActivity()
       setInterval(this.setActivity.bind(this), 1000000)
+    })
+
+    this.bot.on(Discord.Events.InteractionCreate, async (interaction) => {
+      console.log(interaction)
+      if (!interaction.isChatInputCommand()) return
+
+      const council = this.getCouncil(interaction.channelId)
+
+      if (council.enabled === false && interaction.commandName !== "council") {
+        await interaction.reply(
+          "This is not a council channel. To turn into a council channel please use `/council create` command"
+        )
+        return
+        // return "outside_council"
+      }
+
+      await council.initialize()
+
+      console.log(interaction)
+      CouncilCommand.execute(interaction, council)
     })
 
     this.bot.login(process.env.TOKEN)
@@ -74,38 +76,38 @@ class Votum {
   }
 
   private setActivity(): void {
-    this.bot.user?.setActivity("http://eryn.io/Votum")
+    this.bot.user?.setActivity("Paramore")
   }
 
-  private registerCommands(): void {
-    this.bot.registry
-      .registerGroup("votum", "Votum")
-      .registerDefaultTypes()
-      .registerDefaultGroups()
-      .registerDefaultCommands({
-        ping: false,
-        commandState: false,
-        prefix: false,
-        help: true,
-        unknownCommand: false,
-      })
-      .registerCommandsIn(path.join(__dirname, "./commands/votum"))
-      .registerTypesIn(path.join(__dirname, "./types"))
+  // private registerCommands(): void {
+  //   this.bot.registry
+  //     .registerGroup("votum", "Votum")
+  //     .registerDefaultTypes()
+  //     .registerDefaultGroups()
+  //     .registerDefaultCommands({
+  //       ping: false,
+  //       commandState: false,
+  //       prefix: false,
+  //       help: true,
+  //       unknownCommand: false,
+  //     })
+  //     .registerCommandsIn(path.join(__dirname, "./commands/votum"))
+  //     .registerTypesIn(path.join(__dirname, "./types"))
 
-    this.bot.dispatcher.addInhibitor((msg) => {
-      const council = this.getCouncil(msg.channel.id)
+  //   this.bot.dispatcher.addInhibitor((msg) => {
+  //     const council = this.getCouncil(msg.channel.id)
 
-      if (
-        council.enabled === false &&
-        msg.command &&
-        (msg.command as Command).councilOnly
-      ) {
-        return "outside_council"
-      }
+  //     if (
+  //       council.enabled === false &&
+  //       msg.command &&
+  //       (msg.command as Command).councilOnly
+  //     ) {
+  //       return "outside_council"
+  //     }
 
-      return false
-    })
-  }
+  //     return false
+  //   })
+  // }
 }
 
 export default Votum.bootstrap()

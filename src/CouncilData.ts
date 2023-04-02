@@ -1,4 +1,4 @@
-import { ArgumentInfo } from "discord.js-commando"
+// import { ArgumentInfo } from "discord.js-commando"
 import * as t from "io-ts"
 import { MotionData, MotionMajorityType } from "./MotionData"
 import { betweenRange, withDefault } from "./Util"
@@ -68,7 +68,7 @@ export const ConfigurableCouncilData = t.exact(
 
 export type ConfigurableCouncilData = t.TypeOf<typeof ConfigurableCouncilData>
 
-interface Serializer<T> extends Partial<ArgumentInfo> {
+interface Serializer<T> extends Partial<any> {
   serialize(value: any): T
   transform?(value: any): any
   display?(value: any): any

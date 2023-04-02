@@ -1,20 +1,20 @@
-import { ArgumentType, CommandoClient } from 'discord.js-commando'
-import { MotionMajorityType } from '../MotionData'
-import { PathReporter } from 'io-ts/lib/PathReporter'
+// import { ArgumentType, CommandoClient } from 'discord.js-commando'
+import { MotionMajorityType } from "../MotionData"
+import { PathReporter } from "io-ts/lib/PathReporter"
 
-export = class MajorityType extends ArgumentType {
-  constructor (client: CommandoClient) {
-    super(client, 'majority-type')
+export = class MajorityType {
+  constructor(client: any) {
+    // super(client, "majority-type")
   }
 
-  validate (input: string) {
+  validate(input: string) {
     const ea = MotionMajorityType.decode(input)
-    return ea.isRight() || PathReporter.report(ea).join('\n')
+    return ea.isRight() || PathReporter.report(ea).join("\n")
   }
 
-  parse (input: string) {
+  parse(input: string) {
     const ea = MotionMajorityType.decode(input)
-    return ea.getOrElseL(e => {
+    return ea.getOrElseL((e) => {
       throw e
     })
   }

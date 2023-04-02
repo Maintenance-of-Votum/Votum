@@ -1,3 +1,4 @@
+// @ts-nocheck
 import { Collection, GuildMember, Snowflake, TextChannel } from "discord.js"
 import * as fs from "fs"
 import onChange from "on-change"

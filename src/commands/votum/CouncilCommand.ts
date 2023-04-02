@@ -1,51 +1,73 @@
-import { Message } from "discord.js"
-import { CommandoClient, CommandoMessage } from "discord.js-commando"
-import Command from "../Command"
+import {
+  ChatInputCommandInteraction,
+  PermissionFlagsBits,
+  SlashCommandBuilder,
+  SlashCommandSubcommandsOnlyBuilder,
+} from "discord.js"
+import Council from "../../Council"
 
-export default class CouncilCommand extends Command {
-  constructor(client: CommandoClient) {
-    super(client, {
-      name: "council",
-      description:
-        "Designates the channel this command is run in as a council channel.",
-      councilOnly: false,
-      adminOnly: true,
-
-      args: [
-        {
-          key: "name",
-          prompt: 'The name of this council, or "remove" to remove.',
-          type: "string",
-          default: "Council",
-        },
-      ],
-    })
-  }
-
-  async execute(msg: CommandoMessage, args: any): Promise<Message | Message[]> {
-    if (args.name === "remove") {
-      if (this.council.enabled) {
-        this.council.enabled = false
-        return msg.reply(
-          `Removed council "${this.council.name}". (Note: Settings are still saved if you ever enable a council in this channel again.)`
+const CouncilCommand: {
+  // https://www.freecodecamp.org/news/build-a-100-days-of-code-discord-bot-with-typescript-mongodb-and-discord-js-13/
+  data:
+    | Omit<SlashCommandBuilder, "addSubcommandGroup" | "addSubcommand">
+    | SlashCommandSubcommandsOnlyBuilder
+  execute: any
+} = {
+  data: new SlashCommandBuilder()
+    .setName("council")
+    .setDescription(
+      "Designates the channel this command is run in as a council channel."
+    )
+    // Permissions
+    .setDefaultMemberPermissions(PermissionFlagsBits.Administrator)
+    .setDMPermission(false)
+    // Subcommands
+    .addSubcommand((subcommand) =>
+      subcommand
+        .setName("create")
+        .setDescription("creates a council is this channel")
+        .addStringOption((option) =>
+          option
+            .setName("name")
+            .setDescription("The name of this council")
+            .setRequired(true)
+        )
+    )
+    .addSubcommand((subcommand) =>
+      subcommand
+        .setName("remove")
+        .setDescription("Unset this channel as a council channel")
+    ),
+  async execute(interaction: ChatInputCommandInteraction, council: Council) {
+    // await interaction.deferReply()
+    if (interaction.options.getSubcommand() === "remove") {
+      if (council.enabled) {
+        council.enabled = false
+        return await interaction.reply(
+          `Removed council "${council.name}". (Note: Settings are still saved if you ever enable a council in this channel again.)`
         )
       } else {
-        return msg.reply("There is no council enabled in this channel.")
+        return await interaction.reply(
+          "There is no council enabled in this channel."
+        )
       }
     }
-
-    if (this.council.enabled) {
-      if (this.council.name !== args.name) {
-        this.council.name = args.name
-        return msg.reply(`Changed this council's name to "${args.name}"`)
+    const nameInput = interaction.options.getString("name", true)
+    if (council.enabled) {
+      if (council.name !== nameInput) {
+        council.name = nameInput
+        return await interaction.reply(
+          `Changed this council's name to "${nameInput}"`
+        )
       } else {
-        return msg.reply(`This council already exists.`)
+        return await interaction.reply(`This council already exists.`)
       }
     } else {
-      this.council.enabled = true
-      this.council.name = args.name
-
-      return msg.reply(`Created council "${args.name}"`)
+      council.enabled = true
+      council.name = nameInput
+      return await interaction.reply(`Created council "${nameInput}"`)
     }
-  }
+  },
 }
+
+export default CouncilCommand
