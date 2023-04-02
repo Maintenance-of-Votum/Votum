@@ -2,11 +2,17 @@ import {
   ChatInputCommandInteraction,
   PermissionFlagsBits,
   SlashCommandBuilder,
+  SlashCommandSubcommandsOnlyBuilder,
 } from "discord.js"
 import Council from "../../Council"
-import { ICommand } from "../ICommand"
 
-const CouncilCommand: ICommand = {
+const CouncilCommand: {
+  // https://www.freecodecamp.org/news/build-a-100-days-of-code-discord-bot-with-typescript-mongodb-and-discord-js-13/
+  data:
+    | Omit<SlashCommandBuilder, "addSubcommandGroup" | "addSubcommand">
+    | SlashCommandSubcommandsOnlyBuilder
+  execute: any
+} = {
   data: new SlashCommandBuilder()
     .setName("council")
     .setDescription(

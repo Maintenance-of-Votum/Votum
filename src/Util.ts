@@ -1,9 +1,9 @@
-import {
-  ArgumentCollector,
-  ArgumentInfo,
-  CommandoClient,
-  CommandoMessage,
-} from "discord.js-commando"
+// import {
+//   ArgumentCollector,
+//   ArgumentInfo,
+//   CommandoClient,
+//   CommandoMessage,
+// } from "discord.js-commando"
 import { Either } from "fp-ts/lib/Either"
 import * as t from "io-ts"
 import Motion, { MotionResolution } from "./Motion"
@@ -68,34 +68,34 @@ export function getDefaultValue(
   return getProps(type)[name].decode(undefined).getOrElse(undefined)
 }
 
-export async function parseType(
-  client: CommandoClient,
-  message: CommandoMessage,
-  value: string,
-  info: Partial<ArgumentInfo> & { transform?(value: any): any }
-) {
-  const collector = new ArgumentCollector(client, [
-    {
-      key: "value",
-      prompt: "value",
-      ...info,
-    },
-  ])
+// export async function parseType(
+//   client: any,
+//   message: any,
+//   value: string,
+//   info: Partial<any> & { transform?(value: any): any }
+// ) {
+//   const collector = new ArgumentCollector(client, [
+//     {
+//       key: "value",
+//       prompt: "value",
+//       ...info,
+//     },
+//   ])
 
-  const result = await collector.obtain(message, [value], 5)
+//   const result = await collector.obtain(message, [value], 5)
 
-  if ((result.values as object | null) === null) {
-    return null
-  }
+//   if ((result.values as object | null) === null) {
+//     return null
+//   }
 
-  let parsedValue = (result.values as any).value as unknown
+//   let parsedValue = (result.values as any).value as unknown
 
-  if (info.transform) {
-    parsedValue = info.transform(parsedValue)
-  }
+//   if (info.transform) {
+//     parsedValue = info.transform(parsedValue)
+//   }
 
-  return parsedValue as Object
-}
+//   return parsedValue as Object
+// }
 
 export enum ResponseType {
   Good = 0x2ecc71,

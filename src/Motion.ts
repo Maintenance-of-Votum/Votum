@@ -1,3 +1,4 @@
+// @ts-nocheck
 import {
   Channel,
   Collection,
@@ -180,7 +181,7 @@ export default class Motion {
         }),
       })
 
-      const batch = collection.array()
+      const batch = Array.from(collection.values()) // collection.array()
 
       for (const message of batch) {
         if (message.author.bot) {

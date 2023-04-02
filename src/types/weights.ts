@@ -1,12 +1,12 @@
 import Ajv from "ajv"
-import { ArgumentType, CommandoClient } from "discord.js-commando"
+// import { ArgumentType, CommandoClient } from "discord.js-commando"
 import actionSchema = require("../schemas/weights.json")
 
 const validateActionSchema = new Ajv().compile(actionSchema)
 
-export = class WeightsType extends ArgumentType {
-  constructor(client: CommandoClient) {
-    super(client, "weights")
+export = class WeightsType {
+  constructor(client: any) {
+    // super(client, "weights")
   }
 
   validate(input: string) {
@@ -15,7 +15,7 @@ export = class WeightsType extends ArgumentType {
         return true
       } else if (validateActionSchema.errors) {
         return validateActionSchema.errors
-          .map(e => `${e.dataPath} ${e.message}`)
+          .map((e) => `${e.dataPath} ${e.message}`)
           .join("\n")
       }
     } catch (e) {
