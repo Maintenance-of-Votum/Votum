@@ -1,19 +1,29 @@
-/// <reference path="./typings/on-change.d.ts" />
-
-import Discord from "discord.js"
-import path from "path"
-
+import { LogLevel, SapphireClient } from "@sapphire/framework"
+import { GatewayIntentBits } from "discord.js"
 require("dotenv").config()
 
-const shardingManager = new Discord.ShardingManager(
-  path.join(__dirname, "Votum.js"),
-  {
-    token: process.env.TOKEN,
-  }
-)
-
-shardingManager.on("shardCreate", shard => {
-  console.log(`Launching shard ${shard.id + 1}/${shardingManager.totalShards}`)
+const client = new SapphireClient({
+  intents: [
+    GatewayIntentBits.GuildMembers,
+    GatewayIntentBits.Guilds,
+    GatewayIntentBits.GuildMessages,
+  ],
+  logger: {
+    level: LogLevel.Debug,
+  },
+  shards: "auto",
 })
 
-shardingManager.spawn()
+const main = async () => {
+  try {
+    client.logger.info("Logging in")
+    await client.login(process.env.TOKEN)
+    client.logger.info("logged in")
+  } catch (error) {
+    client.logger.fatal(error)
+    client.destroy()
+    process.exit(1)
+  }
+}
+
+main()
