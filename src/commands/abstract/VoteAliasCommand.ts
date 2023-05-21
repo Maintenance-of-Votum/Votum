@@ -64,7 +64,7 @@ export default class VoteAliasCommand extends Command {
     // @ts-ignore
     let name = msg.command.name
 
-    if (msg.cleanContent.substring(0, 1) === Votum.bot.commandPrefix) {
+    if (msg.cleanContent.startsWith(Votum.bot.commandPrefix)) {
       name = msg.cleanContent.split(" ")[0].slice(1)
     }
 
