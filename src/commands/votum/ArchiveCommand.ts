@@ -48,22 +48,13 @@ export default class ArchiveCommand extends Command {
     }
 
     const range = []
-    const clampRange = (i: number) => {
-      if (i <= 0) {
-        return (i = 1)
-      } else if (i > this.council.numMotions) {
-        return (i = this.council.numMotions)
-      }
-
-      return i
-    }
 
     for (const text of raw.split("-")) {
       const n = parseInt(text, 10)
       if (isNaN(n)) {
         return msg.reply(`\`${text}\` is not a number.`)
       }
-      range.push(clampRange(n))
+      range.push(this.clampRange(n))
     }
 
     if (range.length > 2) {
@@ -77,24 +68,7 @@ export default class ArchiveCommand extends Command {
         )
       }
 
-      const summaries = []
-
-      for (let i = range[0]; i <= range[1]; i++) {
-        const motion = this.council.getMotion(i - 1)
-        summaries.push(
-          `**#${i}** ${
-            MotionResolution[motion.resolution]
-          } | ${removeFormatting(motion.text).substring(0, 45)}`
-        )
-
-        if (summaries.join("\n").length > 1900) {
-          summaries.pop()
-          summaries.push(
-            "**Remaining results have been truncated, please specify a smaller range.**"
-          )
-          break
-        }
-      }
+      const summaries = this.buildArchiveResults(range);
 
       return msg.reply({
         embed: {
@@ -112,5 +86,36 @@ export default class ArchiveCommand extends Command {
 
       return motion.postMessage("", msg.channel as TextChannel)
     }
+  }
+
+  clampRange(i: number) : number {
+    if (i <= 0) {
+      return (i = 1)
+    } else if (i > this.council.numMotions) {
+      return (i = this.council.numMotions)
+    }
+
+    return i
+  }
+
+  buildArchiveResults(range: number[]) : string[] {
+    const summaries = []
+    for (let i = range[0]; i <= range[1]; i++) {
+      const motion = this.council.getMotion(i - 1)
+      summaries.push(
+        `**#${i}** ${
+          MotionResolution[motion.resolution]
+        } | ${removeFormatting(motion.text).substring(0, 45)}`
+      )
+
+      if (summaries.join("\n").length > 1900) {
+        summaries.pop()
+        summaries.push(
+          "**Remaining results have been truncated, please specify a smaller range.**"
+        )
+        break
+      }
+    }
+    return summaries;
   }
 }
