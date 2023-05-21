@@ -671,9 +671,8 @@ export default class Motion {
             Math.abs(action.atMajority - this.requiredMajority) < 0.01
         )
         .map((action) => {
-          switch (action.action) {
-            case "forward":
-              return forwardMotion(this, action.to, action.options)
+          if (action.action === "forward") {
+            return forwardMotion(this, action.to, action.options)
           }
         })
     )
