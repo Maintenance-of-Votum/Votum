@@ -9,14 +9,14 @@ on:
       - master
 jobs:
   build:
-    runs-on: windows-latest
+    runs-on: ubuntu-latest
 
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
 
       - name: Setup CodeQL
-        uses: github/codeql-action/init@v1
+        uses: github/codeql-action/setup-codeql@v1
 
       - name: Build CodeQL database
         run: codeql database create --language=typescript --source-root=.
