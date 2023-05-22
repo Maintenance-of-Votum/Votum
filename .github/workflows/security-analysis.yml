@@ -23,6 +23,11 @@ jobs:
 
       - name: Build CodeQL database
         uses: github/codeql-action/analyze@v1
-
+        with:
+          category: "CodeQL Analysis"
+          
       - name: Upload CodeQL results
         uses: github/codeql-action/upload-sarif@v2
+        with:
+          category: "CodeQL Analysis"
+          
