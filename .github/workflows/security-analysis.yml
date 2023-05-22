@@ -25,4 +25,4 @@ jobs:
         uses: github/codeql-action/analyze@v1
 
       - name: Upload CodeQL results
-        uses: github/codeql-action/upload-sarif@v2
+        uses: github/codeql-action/upload-sarif@v1
