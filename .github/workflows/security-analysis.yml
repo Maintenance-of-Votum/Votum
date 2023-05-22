@@ -27,7 +27,7 @@ jobs:
           category: "CodeQL Analysis"
           
       - name: Upload CodeQL results
-        uses: github/codeql-action/upload-sarif@v2
+        uses: github/codeql-action/upload-sarif@v1
         with:
-          category: "CodeQL Analysis"
+          sarif_file: ${{ steps.codeql-analysis.outputs.sarif_file }}
           
