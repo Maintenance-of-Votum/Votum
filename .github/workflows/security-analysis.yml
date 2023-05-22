@@ -1,0 +1,25 @@
+name: Safety Analysis
+
+on:
+  push:
+    branches:
+      - master
+  pull_request:
+    branches:
+      - master
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Setup CodeQL
+        uses: github/codeql-action/init@v1
+
+      - name: Build CodeQL database
+        run: codeql database create --language=typescript --source-root=.
+
+      - name: Analyze with CodeQL
+        run: codeql analyze --format=sarif --output=results.sarif
