@@ -29,5 +29,5 @@ jobs:
       - name: Upload CodeQL results
         uses: github/codeql-action/upload-sarif@v2
         with:
-          sarif_file: ${{ steps.codeql-analysis.outputs.sarif }}
+          sarif: ${{ steps.codeql-analysis.outputs.sarif }}
           
