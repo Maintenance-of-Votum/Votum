@@ -406,7 +406,7 @@ export default class Motion {
       embeds[currentIndex].fields.push(field)
     }
 
-    const getText = (str: any) => { str === true ? this.council.mentionString : str }
+    const getText = (str: any) => { return str === true ? this.council.mentionString : str }
 
     return embeds.map((embed) =>
       (channel || this.council.channel).send(
