@@ -259,7 +259,7 @@ export default class Council {
     }) as CouncilData
   }
   
-  private readDataFromFile(attempt: number) : any {
+  private readDataFromFile(attempt: number): any {
     try {
       const parsedSettings = JSON.parse(
         fs.readFileSync(this.dataPath, {
@@ -282,7 +282,7 @@ export default class Council {
     }
   }
 
-  private writeDataToFile(maxAttempts: number) : void {
+  private writeDataToFile(maxAttempts: number): void {
     for (let i = 0; i < maxAttempts; i++) {
       try {
         fs.writeFileSync(

@@ -36,13 +36,7 @@ export default class SetWeightCommand extends Command {
         return msg.reply("Weight must not be less than zero")
       }
 
-      if (args.weight === 1) {
-        delete weights[args.target.id]
-      } else {
-        weights[args.target.id] = args.weight
-      }
-
-      this.council.setConfig("voteWeights", weights)
+      this.updateWeight(args.target.id, args.weight, weights);
     }
 
     const lines = []
@@ -70,5 +64,15 @@ export default class SetWeightCommand extends Command {
         split: true,
       }
     )
+  }
+
+  updateWeight(member: any, weight: any, weights: { [index: string]: number }): void {
+    if (weight === 1) {
+      delete weights[member]
+    } else {
+      weights[member] = weight
+    }
+
+    this.council.setConfig("voteWeights", weights)
   }
 }

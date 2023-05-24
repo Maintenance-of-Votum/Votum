@@ -88,17 +88,17 @@ export default class ArchiveCommand extends Command {
     }
   }
 
-  clampRange(i: number) : number {
+  clampRange(i: number): number {
     if (i <= 0) {
-      return (i = 1)
+      return 1;
     } else if (i > this.council.numMotions) {
-      return (i = this.council.numMotions)
+      return this.council.numMotions;
     }
 
     return i
   }
 
-  buildArchiveResults(range: number[]) : string[] {
+  buildArchiveResults(range: number[]): string[] {
     const summaries = []
     for (let i = range[0]; i <= range[1]; i++) {
       const motion = this.council.getMotion(i - 1)
