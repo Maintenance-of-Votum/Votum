@@ -1,10 +1,9 @@
-import Motion from "./Motion"
 // @ts-ignore
 import Votum from "./Votum"
+import Motion, { MotionResolution } from "./Motion"
 import { promises as fs } from "fs"
 import path from "path"
 import { MotionData } from "./MotionData"
-import { MotionResolution } from "./Motion"
 import { getCouncil } from "./__mocks__/council"
 import {
   OnFinishActions,
@@ -17,7 +16,7 @@ const clearDataFolder = async () => {
   const directory = `${__dirname}/../data`
 
   for (const file of await fs.readdir(directory)) {
-    if (file.match(/test-/)) await fs.unlink(path.join(directory, file))
+    if (/test-/.exec(file)) await fs.unlink(path.join(directory, file))
   }
 }
 
@@ -146,7 +145,7 @@ describe("Test Resolve", () => {
         expect(motionData.active).toBe(false)
     })
     
-    var actions: OnFinishActions = {}
+    let actions: OnFinishActions = {}
     motionData.resolution = MotionResolution.Failed
     motion.council.setConfig("onFailedAnnounce", "foo")
 
@@ -229,9 +228,9 @@ describe("Test motion votes", () =>{
         expect(votes).toStrictEqual({"abs": 0, "dictatorVoted": false, "no": 0, "toPass": 2, "yes": 0})
     })
     test("Test getRemainingVoters", () =>{
-        var remainingVoters = motion.getRemainingVoters()
+        let remainingVoters = motion.getRemainingVoters()
         //users from the council mock that have not voted
-        var expected = [
+        let expected = [
             {
                 "deleted": false, 
                 "displayName": "votum-app",
