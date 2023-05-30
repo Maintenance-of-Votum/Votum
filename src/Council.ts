@@ -238,25 +238,8 @@ export default class Council {
     let data: CouncilData
 
     if (fs.existsSync(this.dataPath)) {
-      try {
-        const parsedSettings = JSON.parse(
-          fs.readFileSync(this.dataPath, {
-            encoding: "utf8",
-          })
-        )
-        data = Object.assign(
-          {},
-          JSON.parse(JSON.stringify(Council.defaultData)),
-          parsedSettings
-        )
-      } catch (e) {
-        if (attempt > 10) {
-          console.error(`Council ${this.id} data couldn't be loaded`, e)
-          throw new Error(
-            "Council data could not be loaded, perhaps it's corrupted."
-          )
-        }
-
+      data = this.readDataFromFile(attempt);
+      if (!data) {
         return this.loadData(attempt + 1)
       }
     } else {
@@ -271,19 +254,46 @@ export default class Council {
           }
         } catch (e) {}
 
-        for (let i = 0; i < 10; i++) {
-          try {
-            fs.writeFileSync(
-              this.dataPath,
-              JSON.stringify(this.data, undefined, 2)
-            )
-
-            break
-          } catch (e) {
-            console.error("Could not save council data", e)
-          }
-        }
+        this.writeDataToFile(10);
       }, 1)
     }) as CouncilData
+  }
+  
+  private readDataFromFile(attempt: number): any {
+    try {
+      const parsedSettings = JSON.parse(
+        fs.readFileSync(this.dataPath, {
+          encoding: "utf8",
+        })
+      )
+      return Object.assign(
+        {},
+        JSON.parse(JSON.stringify(Council.defaultData)),
+        parsedSettings
+      )
+    } catch (e) {
+      if (attempt > 10) {
+        console.error(`Council ${this.id} data couldn't be loaded`, e)
+        throw new Error(
+          "Council data could not be loaded, perhaps it's corrupted."
+        )
+      }
+      return null
+    }
+  }
+
+  private writeDataToFile(maxAttempts: number): void {
+    for (let i = 0; i < maxAttempts; i++) {
+      try {
+        fs.writeFileSync(
+          this.dataPath,
+          JSON.stringify(this.data, undefined, 2)
+        )
+
+        break
+      } catch (e) {
+        console.error("Could not save council data", e)
+      }
+    }
   }
 }

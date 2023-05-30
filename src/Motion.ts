@@ -356,6 +356,7 @@ export default class Motion {
     }
 
     const votes = text === true ? "" : "\n\n" + this.getVotesAsEmoji()
+    const inactiveMotionColor = this.data.resolution === MotionResolution.Passed ? 0x2ecc71 : 0x636e72
 
     let embeds: any[] = [
       {
@@ -367,9 +368,7 @@ export default class Motion {
         },
         color: this.data.active
           ? 0x3498db
-          : this.data.resolution === MotionResolution.Passed
-          ? 0x2ecc71
-          : 0x636e72,
+          : inactiveMotionColor,
         fields: this.getVotesAsFields(),
         footer: {
           text: this.getVoteHint(),
@@ -407,12 +406,12 @@ export default class Motion {
       embeds[currentIndex].fields.push(field)
     }
 
+    const getText = (str: any) => { return str === true ? this.council.mentionString : str }
+
     return embeds.map((embed) =>
       (channel || this.council.channel).send(
         typeof text !== "undefined"
-          ? text === true
-            ? this.council.mentionString
-            : text
+          ? getText(text)
           : "",
         { embed }
       )
@@ -671,9 +670,8 @@ export default class Motion {
             Math.abs(action.atMajority - this.requiredMajority) < 0.01
         )
         .map((action) => {
-          switch (action.action) {
-            case "forward":
-              return forwardMotion(this, action.to, action.options)
+          if (action.action === "forward") {
+            return forwardMotion(this, action.to, action.options)
           }
         })
     )
