@@ -1,7 +1,7 @@
 import { CommandoClient, CommandoMessage } from "discord.js-commando"
 import { Guild, GuildMember, Permissions, User, SnowflakeUtil, Message } from "discord.js"
-import { CouncilData } from "../CouncilData"
-import Command from './Command'
+import { CouncilData } from "../../CouncilData"
+import Command from '../../commands/Command'
 
 const mockVotumInitialize = jest.fn()
 const mockVotumGetCouncil = jest
@@ -13,7 +13,7 @@ const mockVotumGetCouncil = jest
     getConfig: (config: any) => config
   })
 
-jest.mock("../Votum", () => ({ getCouncil: () => mockVotumGetCouncil() }))
+jest.mock("../../Votum", () => ({ getCouncil: () => mockVotumGetCouncil() }))
 
 describe("Command tests", () => {
   let userId: string, 

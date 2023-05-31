@@ -1,13 +1,13 @@
-import { getCouncil as getCouncilMock } from "./__mocks__/council"
+import { getCouncil as getCouncilMock } from "../__mocks__/council"
 import { promises as fs } from "fs"
 import path from "path"
-import { MotionResolution } from "./Motion"
+import { MotionResolution } from "../Motion"
 
-jest.mock("./Votum", () => jest.fn().mockImplementation(() => ({})))
+jest.mock("../Votum", () => jest.fn().mockImplementation(() => ({})))
 
 const clearDataFolder = async () => {
   // https://stackoverflow.com/a/42182416/13152732
-  const directory = `${__dirname}/../data`
+  const directory = `${__dirname}/../../data`
 
   for (const file of await fs.readdir(directory)) {
     if (/test-/.exec(file)) await fs.unlink(path.join(directory, file))
