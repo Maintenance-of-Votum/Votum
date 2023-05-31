@@ -531,21 +531,7 @@ export default class Motion {
     }
 
     this.deleteDeliberationChannel()
-
-    const actions = this.council.getConfig("onFinishActions") as any
-    if (!actions) return
-
-    switch (resolution) {
-      case MotionResolution.Failed:
-        if (actions.failed) this.performFinishActions(actions.failed)
-        break
-      case MotionResolution.Passed:
-        if (actions.passed) this.performFinishActions(actions.passed)
-        break
-      case MotionResolution.Killed:
-        if (actions.killed) this.performFinishActions(actions.killed)
-        break
-    }
+    this.finishResolvedMotion(resolution)
   }
 
   public getRemainingVoters(): Collection<string, GuildMember> {
@@ -658,6 +644,23 @@ export default class Motion {
     }
 
     return fields
+  }
+
+  private finishResolvedMotion(resolution: MotionResolution): void {
+    const actions = this.council.getConfig("onFinishActions") as any
+    if (!actions) return
+
+    switch (resolution) {
+      case MotionResolution.Failed:
+        if (actions.failed) this.performFinishActions(actions.failed)
+        break
+      case MotionResolution.Passed:
+        if (actions.passed) this.performFinishActions(actions.passed)
+        break
+      case MotionResolution.Killed:
+        if (actions.killed) this.performFinishActions(actions.killed)
+        break
+    }
   }
 
   private performFinishActions(actions: OnFinishAction[]) {
