@@ -31,39 +31,15 @@ export default class MotionCommand extends Command {
     await msg.guild.members.fetch() // Privileged intents fix
 
     if (!args.text) {
-      if (this.council.currentMotion) {
-        return this.council.currentMotion.postMessage()
-      } else {
-        return msg.reply(
-          "There is no active motion. Run `!motion <text>` to start one."
-        )
-      }
-    }
-
-    if (this.council.currentMotion) {
-      if (args.text === "kill") {
-        if (
-          this.council.currentMotion.authorId === msg.author.id ||
-          // @ts-ignore
-          msg.member.hasPermission("MANAGE_GUILD") ||
-          // @ts-ignore
-          !!msg.member.roles.cache.find((role) => role.name === "Votum Admin")
-        ) {
-          const motion = this.council.currentMotion
-          motion.resolve(MotionResolution.Killed)
-          return motion.postMessage()
-        } else {
-          return msg.reply("You don't have permission to kill this motion.")
-        }
-      }
-
-      if (!this.council.getConfig("motionQueue")) {
-        return msg.reply("There is already an active motion.")
-      }
+      return this.executeWithoutArguments(msg);
     }
 
     if (args.text === "kill") {
-      return msg.reply("There is no motion active.")
+      return this.killMotion(msg);
+    }
+
+    if (this.council.currentMotion && !this.council.getConfig("motionQueue")) {
+      return msg.reply("There is already an active motion.")
     }
 
     if (this.council.getConfig("councilorMotionDisable")) {
@@ -146,5 +122,35 @@ export default class MotionCommand extends Command {
     }
 
     return motion.postMessage(true)
+  }
+
+  executeWithoutArguments(msg: CommandoMessage): Promise<Message | Message[]> {
+    if (this.council.currentMotion) {
+      return this.council.currentMotion.postMessage()
+    } else {
+      return msg.reply(
+        "There is no active motion. Run `!motion <text>` to start one."
+      )
+    }
+  }
+
+  killMotion(msg: CommandoMessage): Promise<Message | Message[]> {
+    if (this.council.currentMotion) {
+      if (
+        this.council.currentMotion.authorId === msg.author.id ||
+        // @ts-ignore
+        msg.member.hasPermission("MANAGE_GUILD") ||
+        // @ts-ignore
+        !!msg.member.roles.cache.find((role) => role.name === "Votum Admin")
+      ) {
+        const motion = this.council.currentMotion
+        motion.resolve(MotionResolution.Killed)
+        return motion.postMessage()
+      } else {
+        return msg.reply("You don't have permission to kill this motion.")
+      }
+    }
+
+    return msg.reply("There is no motion active.")
   }
 }
