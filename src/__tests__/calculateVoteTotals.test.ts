@@ -1,4 +1,4 @@
-import calculateVoteTotals from "./calculateVoteTotals"
+import calculateVoteTotals from "../calculateVoteTotals"
 
 test("council of 2 with 1 abstain 1 yes should pass", () => {
   const result = calculateVoteTotals({

@@ -1,10 +1,10 @@
 import { CommandoClient, CommandoMessage } from "discord.js-commando"
-import PingInactiveCommand from "./PingInactiveCommand"
+import PingInactiveCommand from "../../../commands/votum/PingInactiveCommand"
 import { Collection, Guild, GuildMember, Message, SnowflakeUtil, User } from "discord.js"
 
 const mockVotumInitialize = jest.fn()
-jest.mock("../../Motion", () => ({}))
-jest.mock('../../Util', () => ({
+jest.mock("../../../Motion", () => ({}))
+jest.mock('../../../Util', () => ({
   MAX_MESSAGE_SIZE: 70
 }))
 const mockCouncil = {
@@ -25,7 +25,7 @@ const mockCommandMessage = {
 }
 const mockGetCommandMessage = jest.fn().mockReturnValue(mockCommandMessage)
 const mockGetCouncil = jest.fn().mockReturnValue(mockCouncil)
-jest.mock("../../Votum", () => ({
+jest.mock("../../../Votum", () => ({
   getCouncil: () => mockGetCouncil(),
 }))
 
