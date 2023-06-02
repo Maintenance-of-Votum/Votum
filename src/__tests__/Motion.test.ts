@@ -1,19 +1,19 @@
 // @ts-ignore
-import Votum from "./Votum"
-import Motion, { MotionResolution } from "./Motion"
+import Votum from "../Votum"
+import Motion, { MotionResolution } from "../Motion"
 import { promises as fs } from "fs"
 import path from "path"
-import { MotionData } from "./MotionData"
-import { getCouncil } from "./__mocks__/council"
+import { MotionData } from "../MotionData"
+import { getCouncil } from "../__mocks__/council"
 import {
   OnFinishActions,
-} from "./CouncilData"
+} from "../CouncilData"
 
-jest.mock("./Votum", () => ({getCouncil: jest.fn().mockReturnValue({})}))
+jest.mock("../Votum", () => ({getCouncil: jest.fn().mockReturnValue({})}))
 
 const clearDataFolder = async () => {
   // https://stackoverflow.com/a/42182416/13152732
-  const directory = `${__dirname}/../data`
+  const directory = `${__dirname}/../../data`
 
   for (const file of await fs.readdir(directory)) {
     if (/test-/.exec(file)) await fs.unlink(path.join(directory, file))
