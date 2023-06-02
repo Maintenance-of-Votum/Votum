@@ -70,7 +70,7 @@ describe("Test Util", () => {
     expect(inProps("prop5", mockType)).toBe(false)
   })
 
-  test("Should return props for an ExactType", () => {
+  test("Should return props for an IntersectionType", () => {
     const A = t.type({
       foo: t.string,
     })
@@ -98,6 +98,118 @@ describe("Test Util", () => {
     expect(props.bar.constructor.name).toBe("NumberType")
     expect(props.caz.constructor.name).toBe("NumberType")
   })
+
+  test("Should return props for an ExactType", () => {
+    const A = t.exact(t.type({
+      foo: t.string,
+    }))
+
+    const props = getProps(A)
+
+    expect(Object.keys(props)).toEqual(["foo"])
+    expect(props.foo).toBe(t.string)
+  })
+
+  test("Should return props for a RefinementType", () => {
+    const isPositive = (n: number): n is t.Branded<number, { readonly Positive: unique symbol }> =>
+      n > 0
+
+    const NumberType = t.refinement(t.number, isPositive)
+
+    const user = t.type({
+      age: NumberType
+    })
+    const props = getProps(user)
+
+    expect(Object.keys(props)).toEqual(["age"])
+    expect(props.age).toEqual(NumberType)
+  })
+
+
+  test("Should return props for a ReadonlyType", () => {
+    const PointType = t.type({
+      x: t.number,
+      y: t.number,
+    })
+
+    const ReadonlyPointType = t.readonly(PointType)
+
+    const props = getProps(ReadonlyPointType)
+
+    expect(Object.keys(props)).toEqual(["x", "y"])
+    expect(props.x).toBe(t.number)
+    expect(props.y).toBe(t.number)
+  })
+
+  test("Should return props for an InterfaceType", () => {
+    const A = t.type({
+      foo: t.string,
+    })
+
+    const B = t.type({
+      bar: t.number,
+      caz: t.number,
+    })
+
+    const C = t.interface({
+      ...A.props,
+      ...B.props,
+    })
+
+    const props = getProps(C)
+
+    expect(Object.keys(props)).toEqual(["foo", "bar", "caz"])
+    expect(props.foo).toBe(t.string)
+    expect(props.bar).toBe(t.number)
+    expect(props.caz).toBe(t.number)
+  })
+
+  test("Should return props for a StrictType", () => {
+    const A = t.type({
+      foo: t.string,
+    })
+
+    const B = t.type({
+      bar: t.number,
+      caz: t.number,
+    })
+
+    const C = t.strict({
+      ...A.props,
+      ...B.props,
+    })
+
+    const props = getProps(C)
+
+    expect(Object.keys(props)).toEqual(["foo", "bar", "caz"])
+    expect(props.foo).toBe(t.string)
+    expect(props.bar).toBe(t.number)
+    expect(props.caz).toBe(t.number)
+  })
+
+  test("Should return props for a PartialType", () => {
+    const A = t.type({
+      foo: t.string,
+    });
+
+    const B = t.partial({
+      bar: t.number,
+      caz: t.number,
+    });
+
+    const C = t.partial({
+      ...A.props,
+      ...B.props,
+    });
+
+    const props = getProps(C);
+
+    expect(Object.keys(props)).toEqual(["foo", "bar", "caz"]);
+    expect(props.foo).toBe(t.string);
+    expect(props.bar).toBe(t.number);
+    expect(props.caz).toBe(t.number);
+  });
+
 
   test("Should return default value for a prop", () => {
     const SampleType = t.type({
