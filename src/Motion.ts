@@ -335,25 +335,7 @@ export default class Motion {
       this.checkVotes()
     }
 
-    let type = ""
-    if (this.data.voteType === LegacyMotionVoteType.Unanimous) {
-      type = " (unanimous)"
-    }
-
-    let title = `#${this.number} | `
-    if (this.data.active) {
-      if (text === true) {
-        title += "New motion proposed" + type
-      } else {
-        title += "Currently active motion" + type
-      }
-    } else if (this.data.resolution === MotionResolution.Passed) {
-      title += "Motion Passed" + type
-    } else if (this.data.resolution === MotionResolution.Killed) {
-      title += "Motion Killed"
-    } else {
-      title += "Motion Failed"
-    }
+    let title = this.defineMotionMessageTitle(text);
 
     const votes = text === true ? "" : "\n\n" + this.getVotesAsEmoji()
     const inactiveMotionColor = this.data.resolution === MotionResolution.Passed ? 0x2ecc71 : 0x636e72
@@ -381,30 +363,7 @@ export default class Motion {
       },
     ]
 
-    const isInvalid = (embed: any, extra = 0) =>
-      embed.fields.length > 25 || getEmbedLength(embed) + extra >= 6000
-
-    let currentIndex = 1
-    while (isInvalid(embeds[0])) {
-      const field = embeds[0].fields.pop()
-
-      if (
-        embeds[currentIndex] != null &&
-        isInvalid(embeds[currentIndex], getEmbedLength(field))
-      ) {
-        currentIndex++
-      }
-
-      if (embeds[currentIndex] == null) {
-        embeds[currentIndex] = {
-          title: `${title} (cont.)`,
-          color: embeds[0].color,
-          fields: [],
-        }
-      }
-
-      embeds[currentIndex].fields.push(field)
-    }
+    this.fixInvalidEmbedMessage(embeds, title);
 
     const getText = (str: any) => { return str === true ? this.council.mentionString : str }
 
@@ -678,5 +637,56 @@ export default class Motion {
           }
         })
     )
+  }
+
+  private defineMotionMessageTitle(text?: string | true): string {
+    let type = ""
+    if (this.data.voteType === LegacyMotionVoteType.Unanimous) {
+      type = " (unanimous)"
+    }
+
+    let title = `#${this.number} | `
+    if (this.data.active) {
+      if (text === true) {
+        title += "New motion proposed" + type
+      } else {
+        title += "Currently active motion" + type
+      }
+    } else if (this.data.resolution === MotionResolution.Passed) {
+      title += "Motion Passed" + type
+    } else if (this.data.resolution === MotionResolution.Killed) {
+      title += "Motion Killed"
+    } else {
+      title += "Motion Failed"
+    }
+
+    return title;
+  }
+
+  private fixInvalidEmbedMessage(embeds: any[], title: string) {
+    const isInvalid = (embed: any, extra = 0) => 
+      embed.fields.length > 25 || getEmbedLength(embed) + extra >= 6000
+
+    let currentIndex = 1
+    while (isInvalid(embeds[0])) {
+      const field = embeds[0].fields.pop()
+
+      if (
+        embeds[currentIndex] != null &&
+        isInvalid(embeds[currentIndex], getEmbedLength(field))
+      ) {
+        currentIndex++
+      }
+
+      if (embeds[currentIndex] == null) {
+        embeds[currentIndex] = {
+          title: `${title} (cont.)`,
+          color: embeds[0].color,
+          fields: [],
+        }
+      }
+
+      embeds[currentIndex].fields.push(field)
+    }
   }
 }
