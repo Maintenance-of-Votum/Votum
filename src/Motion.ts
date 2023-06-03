@@ -335,25 +335,7 @@ export default class Motion {
       this.checkVotes()
     }
 
-    let type = ""
-    if (this.data.voteType === LegacyMotionVoteType.Unanimous) {
-      type = " (unanimous)"
-    }
-
-    let title = `#${this.number} | `
-    if (this.data.active) {
-      if (text === true) {
-        title += "New motion proposed" + type
-      } else {
-        title += "Currently active motion" + type
-      }
-    } else if (this.data.resolution === MotionResolution.Passed) {
-      title += "Motion Passed" + type
-    } else if (this.data.resolution === MotionResolution.Killed) {
-      title += "Motion Killed"
-    } else {
-      title += "Motion Failed"
-    }
+    let title = this.defineMotionMessageTitle(text);
 
     const votes = text === true ? "" : "\n\n" + this.getVotesAsEmoji()
     const inactiveMotionColor = this.data.resolution === MotionResolution.Passed ? 0x2ecc71 : 0x636e72
@@ -381,30 +363,7 @@ export default class Motion {
       },
     ]
 
-    const isInvalid = (embed: any, extra = 0) =>
-      embed.fields.length > 25 || getEmbedLength(embed) + extra >= 6000
-
-    let currentIndex = 1
-    while (isInvalid(embeds[0])) {
-      const field = embeds[0].fields.pop()
-
-      if (
-        embeds[currentIndex] != null &&
-        isInvalid(embeds[currentIndex], getEmbedLength(field))
-      ) {
-        currentIndex++
-      }
-
-      if (embeds[currentIndex] == null) {
-        embeds[currentIndex] = {
-          title: `${title} (cont.)`,
-          color: embeds[0].color,
-          fields: [],
-        }
-      }
-
-      embeds[currentIndex].fields.push(field)
-    }
+    this.fixInvalidEmbedMessage(embeds, title);
 
     const getText = (str: any) => { return str === true ? this.council.mentionString : str }
 
@@ -531,21 +490,7 @@ export default class Motion {
     }
 
     this.deleteDeliberationChannel()
-
-    const actions = this.council.getConfig("onFinishActions") as any
-    if (!actions) return
-
-    switch (resolution) {
-      case MotionResolution.Failed:
-        if (actions.failed) this.performFinishActions(actions.failed)
-        break
-      case MotionResolution.Passed:
-        if (actions.passed) this.performFinishActions(actions.passed)
-        break
-      case MotionResolution.Killed:
-        if (actions.killed) this.performFinishActions(actions.killed)
-        break
-    }
+    this.finishResolvedMotion(resolution)
   }
 
   public getRemainingVoters(): Collection<string, GuildMember> {
@@ -605,14 +550,7 @@ export default class Motion {
     const votes = this.getVotes()
 
     if (this.data.active === false) {
-      return (
-        `Results final.` +
-        (this.data.voteType === LegacyMotionVoteType.Unanimous
-          ? " (Unanimous vote was required)"
-          : "") +
-        (this.data.didExpire ? " (Motion expired.)" : "") +
-        (votes.dictatorVoted ? " (Dictator ended vote immediately)" : "")
-      )
+      return this.getVoteResult();
     }
 
     if (votes.yes === votes.no && this.isExpired) {
@@ -639,6 +577,18 @@ export default class Motion {
     return `This motion requires ${votes.toPass} votes to pass or fail.`
   }
 
+  private getVoteResult(): string {
+    const votes = this.getVotes()
+    return (
+      `Results final.` +
+      (this.data.voteType === LegacyMotionVoteType.Unanimous
+        ? " (Unanimous vote was required)"
+        : "") +
+      (this.data.didExpire ? " (Motion expired.)" : "") +
+      (votes.dictatorVoted ? " (Dictator ended vote immediately)" : "")
+    )
+  }
+
   private getVotesAsEmoji(): string {
     const votes = this.getVotes()
 
@@ -660,6 +610,23 @@ export default class Motion {
     return fields
   }
 
+  private finishResolvedMotion(resolution: MotionResolution): void {
+    const actions = this.council.getConfig("onFinishActions") as any
+    if (!actions) return
+
+    switch (resolution) {
+      case MotionResolution.Failed:
+        if (actions.failed) this.performFinishActions(actions.failed)
+        break
+      case MotionResolution.Passed:
+        if (actions.passed) this.performFinishActions(actions.passed)
+        break
+      case MotionResolution.Killed:
+        if (actions.killed) this.performFinishActions(actions.killed)
+        break
+    }
+  }
+
   private performFinishActions(actions: OnFinishAction[]) {
     actions = JSON.parse(JSON.stringify(actions))
     return Promise.all(
@@ -675,5 +642,56 @@ export default class Motion {
           }
         })
     )
+  }
+
+  private defineMotionMessageTitle(text?: string | true): string {
+    let type = ""
+    if (this.data.voteType === LegacyMotionVoteType.Unanimous) {
+      type = " (unanimous)"
+    }
+
+    let title = `#${this.number} | `
+    if (this.data.active) {
+      if (text === true) {
+        title += "New motion proposed" + type
+      } else {
+        title += "Currently active motion" + type
+      }
+    } else if (this.data.resolution === MotionResolution.Passed) {
+      title += "Motion Passed" + type
+    } else if (this.data.resolution === MotionResolution.Killed) {
+      title += "Motion Killed"
+    } else {
+      title += "Motion Failed"
+    }
+
+    return title;
+  }
+
+  private fixInvalidEmbedMessage(embeds: any[], title: string) {
+    const isInvalid = (embed: any, extra = 0) => 
+      embed.fields.length > 25 || getEmbedLength(embed) + extra >= 6000
+
+    let currentIndex = 1
+    while (isInvalid(embeds[0])) {
+      const field = embeds[0].fields.pop()
+
+      if (
+        embeds[currentIndex] != null &&
+        isInvalid(embeds[currentIndex], getEmbedLength(field))
+      ) {
+        currentIndex++
+      }
+
+      if (embeds[currentIndex] == null) {
+        embeds[currentIndex] = {
+          title: `${title} (cont.)`,
+          color: embeds[0].color,
+          fields: [],
+        }
+      }
+
+      embeds[currentIndex].fields.push(field)
+    }
   }
 }

@@ -1,6 +1,6 @@
 import { Message } from "discord.js"
 import { CommandoClient, CommandoMessage } from "discord.js-commando"
-import { MotionResolution } from "../../Motion"
+import Motion, { MotionResolution } from "../../Motion"
 import Command from "../Command"
 
 interface TimeStat {
@@ -71,44 +71,14 @@ export default class StatsCommand extends Command {
 
     for (let i = 0; i < this.council.numMotions; i++) {
       const motion = this.council.getMotion(i)
-
-      if (
-        lastMotion[motion.authorId] == null ||
-        lastMotion[motion.authorId] < motion.createdAt
-      ) {
-        lastMotion[motion.authorId] = motion.createdAt
-
-        if (councilorNames[motion.authorId] == null) {
-          councilorNames[motion.authorId] = motion.authorName + " (retired)"
-        }
-      }
-
-      if (mostMotions[motion.authorId] == null) mostMotions[motion.authorId] = 0
-      mostMotions[motion.authorId]++
-
-      if (motion.resolution === MotionResolution.Passed) {
-        if (mostPassedMotions[motion.authorId] == null)
-          mostPassedMotions[motion.authorId] = 0
-        mostPassedMotions[motion.authorId]++
-      }
-
-      for (const vote of motion.votes) {
-        // If this is a quoted vote
-        if (vote.authorId === "0") {
-          continue
-        }
-
-        if (
-          lastVoted[vote.authorId] == null ||
-          lastVoted[vote.authorId] < motion.createdAt
-        ) {
-          lastVoted[vote.authorId] = motion.createdAt
-
-          if (councilorNames[vote.authorId] == null) {
-            councilorNames[vote.authorId] = vote.authorName + " (retired)"
-          }
-        }
-      }
+      this.extractMotionInformation(
+        motion,
+        lastVoted,
+        lastMotion,
+        mostMotions,
+        mostPassedMotions,
+        councilorNames
+      )
     }
 
     /////////////////////////////////////////////////////////
@@ -187,5 +157,60 @@ export default class StatsCommand extends Command {
     /////////////////////////////////////////////////////////
 
     return msg.reply(output, { split: true })
+  }
+
+  extractMotionInformation(
+    motion: Motion,
+    lastVoted: any,
+    lastMotion: any,
+    mostMotions: any,
+    mostPassedMotions: any,
+    councilorNames: any
+  ): void {
+    if (
+      lastMotion[motion.authorId] == null ||
+      lastMotion[motion.authorId] < motion.createdAt
+    ) {
+      lastMotion[motion.authorId] = motion.createdAt
+      this.addRetiredCouncilor(
+        councilorNames,
+        motion.authorId,
+        motion.authorName
+      )
+    }
+
+    if (mostMotions[motion.authorId] == null) mostMotions[motion.authorId] = 0
+    mostMotions[motion.authorId]++
+
+    if (motion.resolution === MotionResolution.Passed) {
+      if (mostPassedMotions[motion.authorId] == null)
+        mostPassedMotions[motion.authorId] = 0
+      mostPassedMotions[motion.authorId]++
+    }
+
+    for (const vote of motion.votes) {
+      // If this is a quoted vote
+      if (vote.authorId === "0") {
+        continue
+      }
+
+      if (
+        lastVoted[vote.authorId] == null ||
+        lastVoted[vote.authorId] < motion.createdAt
+      ) {
+        lastVoted[vote.authorId] = motion.createdAt
+        this.addRetiredCouncilor(councilorNames, vote.authorId, vote.authorName)
+      }
+    }
+  }
+
+  addRetiredCouncilor(
+    councilorNames: any,
+    authorId: string,
+    authorName: string
+  ): void {
+    if (councilorNames[authorId] == null) {
+      councilorNames[authorId] = authorName + " (retired)"
+    }
   }
 }
