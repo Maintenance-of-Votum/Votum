@@ -11,12 +11,12 @@ import {
 import * as t from "io-ts"
 
 // @ts-ignore
-import Motion from "./Motion"
+import Motion, { MotionResolution } from "./Motion"
 
 // @ts-ignore
 import Votum from "./Votum"
 
-jest.mock("./Motion", () => ({ MotionResolution: {} }))
+jest.mock("./Motion", () => ({ MotionResolution: {Unresolved: 0} }))
 jest.mock("./Votum", () => ({ getCouncil: jest.fn() }))
 
 describe("Test Util", () => {
@@ -232,9 +232,27 @@ describe("Test Util", () => {
     })
   })
 
-  // TODO: Rename it and test something useful
   test("Test forward motion", async () => {
-    ;(Votum.getCouncil as jest.Mock).mockReturnValue({
+    const date = Date.now()
+    jest.useFakeTimers().setSystemTime(date)
+
+    // Mocking the dependencies
+    const mockCouncilId = "mockCouncilId"
+    const mockMotionData = {
+      votes: [
+        {
+          state: undefined,
+          authorId: "0",
+          authorName: "»mockAuthorName",
+        },
+      ],
+      resolution: MotionResolution.Unresolved,
+      active: true,
+      didExpire: false,
+      createdAt: date,
+    }
+
+    const mockCouncil = {
       enabled: true,
       createMotion: jest.fn().mockReturnValue({ postMessage: jest.fn() }),
       channel: {
@@ -242,8 +260,40 @@ describe("Test Util", () => {
           members: { fetch: jest.fn() },
         },
       },
-    })
-    // @ts-ignore
-    forwardMotion({ getData: jest.fn().mockReturnValue({ votes: [] }) }, "12")
-  })
+    };
+
+    // Mocking the external dependencies
+    (Votum.getCouncil as jest.Mock).mockReturnValue(mockCouncil)
+
+    // Creating the mock Motion object
+    const mockMotion: Motion = {
+      // @ts-ignore
+      council: {}, // Preencha com os dados do council necessários
+      // @ts-ignore
+      motionIndex: "mockMotionIndex",
+      // @ts-ignore
+      data: { votes: [] }, // Preencha com os dados do motion necessários
+      authorId: "mockAuthorId",
+      getData: jest.fn().mockReturnValue({ votes: [{
+        authorName: "mockAuthorName"
+        }]})
+      // Adicione as outras propriedades necessárias aqui
+    }
+
+    // Calling the tested method
+    await forwardMotion(mockMotion, mockCouncilId)
+
+    // Verifying the calls and assertions
+    expect(Votum.getCouncil).toHaveBeenCalledWith(mockCouncilId)
+    expect(mockCouncil.createMotion).toHaveBeenCalledWith(mockMotionData)
+    expect(mockCouncil.channel.guild.members.fetch).toHaveBeenCalled()
+    expect(mockMotionData.votes[0].state).toBeUndefined()
+    expect(mockMotionData.votes[0].authorId).toBe("0")
+    expect(mockMotionData.votes[0].authorName).toBe("»mockAuthorName")
+    expect(mockMotionData.resolution).toBe(0)
+    expect(mockMotionData.active).toBe(true)
+    expect(mockMotionData.didExpire).toBe(false)
+    expect(mockMotionData.createdAt).toBe(date)
+    expect(mockCouncil.createMotion().postMessage).toHaveBeenCalledWith(true)
+  });
 })
