@@ -550,14 +550,7 @@ export default class Motion {
     const votes = this.getVotes()
 
     if (this.data.active === false) {
-      return (
-        `Results final.` +
-        (this.data.voteType === LegacyMotionVoteType.Unanimous
-          ? " (Unanimous vote was required)"
-          : "") +
-        (this.data.didExpire ? " (Motion expired.)" : "") +
-        (votes.dictatorVoted ? " (Dictator ended vote immediately)" : "")
-      )
+      return this.getVoteResult();
     }
 
     if (votes.yes === votes.no && this.isExpired) {
@@ -582,6 +575,18 @@ export default class Motion {
     }
 
     return `This motion requires ${votes.toPass} votes to pass or fail.`
+  }
+
+  private getVoteResult(): string {
+    const votes = this.getVotes()
+    return (
+      `Results final.` +
+      (this.data.voteType === LegacyMotionVoteType.Unanimous
+        ? " (Unanimous vote was required)"
+        : "") +
+      (this.data.didExpire ? " (Motion expired.)" : "") +
+      (votes.dictatorVoted ? " (Dictator ended vote immediately)" : "")
+    )
   }
 
   private getVotesAsEmoji(): string {
