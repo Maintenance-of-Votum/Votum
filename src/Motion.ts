@@ -563,7 +563,7 @@ export default class Motion {
       return `The motion is expired, but is tied. The next vote will close the motion.`
     } else if (votes.yes === 0 && votes.no === 0) {
       return `This motion requires ${votes.toPass} vote${
-        votes.toPass === 1 ? "" : "s"
+        this.checkPluralVotes(votes.toPass, 0)
       } to pass or fail.`
     } else if (
       (votes.yes >= votes.no && votes.yes >= votes.toPass) ||
@@ -572,15 +572,19 @@ export default class Motion {
       return `This motion has reached the required majority, but is being held until all councilors have voted.`
     } else if (votes.yes >= votes.no) {
       return `With ${votes.toPass - votes.yes} more vote${
-        votes.toPass - votes.yes === 1 ? "" : "s"
+        this.checkPluralVotes(votes.toPass, votes.yes)
       } for this motion, it will pass.`
     } else if (votes.no > votes.yes) {
       return `With ${votes.toPass - votes.no} more vote${
-        votes.toPass - votes.no === 1 ? "" : "s"
+        this.checkPluralVotes(votes.toPass, votes.no)
       } against this motion, it will fail.`
     }
 
     return `This motion requires ${votes.toPass} votes to pass or fail.`
+  }
+
+  private checkPluralVotes(pass: number, quantity: number): string {
+    return pass - quantity === 1 ? "" : "s"
   }
 
   private getVoteResult(): string {
