@@ -7,17 +7,17 @@ import {
   forwardMotion,
   getProps,
   getDefaultValue,
-} from "./Util"
+} from "../Util"
 import * as t from "io-ts"
 
 // @ts-ignore
-import Motion, { MotionResolution } from "./Motion"
+import Motion, { MotionResolution } from "../Motion"
 
 // @ts-ignore
-import Votum from "./Votum"
+import Votum from "../Votum"
 
-jest.mock("./Motion", () => ({ MotionResolution: {Unresolved: 0} }))
-jest.mock("./Votum", () => ({ getCouncil: jest.fn() }))
+jest.mock("../Motion", () => ({ MotionResolution: {Unresolved: 0} }))
+jest.mock("../Votum", () => ({ getCouncil: jest.fn() }))
 
 describe("Test Util", () => {
   test.each`
