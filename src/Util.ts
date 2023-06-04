@@ -152,7 +152,8 @@ export async function forwardMotion(
 
   motionData.votes.forEach((vote: any) => {
     vote.state = undefined
-    ;(vote.authorId = "0"), (vote.authorName = `»${vote.authorName}`)
+    vote.authorId = "0"
+    vote.authorName = `»${vote.authorName}`
   })
   motionData.resolution = MotionResolution.Unresolved
   motionData.active = true
