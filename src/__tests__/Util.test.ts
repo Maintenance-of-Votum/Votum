@@ -114,7 +114,7 @@ describe("Test Util", () => {
     const isPositive = (n: number): n is t.Branded<number, { readonly Positive: unique symbol }> =>
       n > 0
 
-    const NumberType = t.refinement(t.number, isPositive)
+    const NumberType = t.brand(t.number, isPositive, "Positive")
 
     const user = t.type({
       age: NumberType

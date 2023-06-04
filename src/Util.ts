@@ -20,7 +20,7 @@ export function withDefault<T extends t.Any>(
   return new t.Type(
     `withDefault(${type.name}, ${JSON.stringify(defaultValue)})`,
     type.is,
-    (v, c) => type.validate(v != null ? v : defaultValue, c),
+    (v, c) => type.validate(v ?? defaultValue, c),
     type.encode
   )
 }
@@ -86,7 +86,7 @@ export async function parseType(
 
   const result = await collector.obtain(message, [value], 5)
 
-  if ((result.values as object | null) === null) {
+  if (result.values === null) {
     return null
   }
 
