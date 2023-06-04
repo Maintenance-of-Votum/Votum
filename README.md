@@ -107,6 +107,7 @@ Motion options are special flags you can put at the beginning of your motion to 
 | ----------- | ------- | ---- | ----------- |
 | `majority`  | `m`     | `majority type` | A percentage or fraction indicating the majority type.
 | `unanimous` | `u`     | `boolean` | Specifies the motion should be unanimous (shortcut for `-m 100%`)
+| `showChart` | none    | `boolean` | Displays motion results in a pie chart
 
 ##### Example
 
@@ -121,6 +122,8 @@ Unanimous motion (all are equivalent):<br>
 - `!motion -m 100% Motion text goes here`
 - `!motion -m 1/1 Motion text goes here`
 
+To display motion results in a pie chart:
+- `!motion --showChart Motion text goes here`
 
 ## Voting
 
