@@ -23,6 +23,6 @@
   },
   "scripts": {
     "dev": "tsc-watch --onSuccess \"node dist/index.js\"",
-    "test": "tsc && jest dist"
+    "test": "tsc && jest --runInBand dist"
   }
 }
