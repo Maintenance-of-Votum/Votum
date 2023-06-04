@@ -53,7 +53,8 @@ class Votum {
   }
 
   public static bootstrap(): Votum {
-    return ((global as any).Votum = new Votum())
+    (global as any).Votum = new Votum()
+    return (global as any).Votum
   }
 
   public getCouncil(id: Discord.Snowflake): Council {
